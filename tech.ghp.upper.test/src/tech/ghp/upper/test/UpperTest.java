@@ -25,10 +25,10 @@ public class UpperTest {
     	Assert.assertNotNull(getService(Upper.class));
     }
     
-    //@Test
-    //public void testText() throws Exception {
-    //	Assert.assertSame( new String("POPOVICI"), getService(Upper.class).upper("Popovici"));
-    //}
+    @Test
+    public void testText() throws Exception {
+    	Assert.assertSame( new String("POPOVICI"), getService(Upper.class).upper("Popovici"));
+    }
     
     <T> T getService(Class<T> clazz) throws InterruptedException {
     	ServiceTracker<T,T> st = new ServiceTracker<>(context, clazz, null);
