@@ -18,15 +18,15 @@ import tech.ghp.upper.api.Upper;
 @Component(name="tech.ghp.upper")
 public class UpperApplication implements REST {
 
-	//public String getUpper(RESTRequest req, String string) throws Exception{
-	//	return string.toUpperCase();
-	//}
-	
-	public String getUpper(String string) {
-			return upper.upper(string);
+	public String getUpper(RESTRequest req, String string) throws Exception{
+		return string.toUpperCase();
 	}
 	
-	@Reference
-	Upper		upper;
+	//public String getUpper(String string) {
+	//		return upper.upper(string);
+	//}
+	
+	//@Reference
+	//Upper		upper;
 
 }

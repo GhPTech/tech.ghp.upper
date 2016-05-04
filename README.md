@@ -32,8 +32,8 @@ OSGi enRoute requires that the files belonging to a specific project are grouped
 The *GitHub workspace* is intended for sharing on [GitHub](https://github.com). The *bnd* template workspace can be obtained from [GitHub](https://github.com/osgi/workspace).
 
 	 $ cd  ~/git
-	 $ git init tech.ghp.engineering
-	 $ cd tech.ghp.engineering
+	 $ git init tech.ghp.upper
+	 $ cd tech.ghp.upper
 	 $ git fetch --depth=1 https://github.com/osgi/workspace master
 	 $ git checkout FETCH_HEAD -- .
 
@@ -43,7 +43,7 @@ The *Eclipse workspace* stores *metadata* with personal preferences and history,
 
 In order to create/select an *Eclipse workspace*, select _File/Switch Workspace/Other ..._ fill in the path accordingly. For the present tutorial the *Eclipse Workspace* should be as follows:
 
-*~/eclipse/tech.ghp.engineering*
+*~/eclipse/tech.ghp.upper*
 
 ###Workbench view
 
@@ -59,7 +59,7 @@ From the context menu (right click) select
 
 then select the corresponding *Bnd Workspace* from *GitHub*. For the present tutorial, the following path:
 
-*~/git/tech.ghp.engineering*
+*~/git/tech.ghp.upper*
     
 Finish the import process,by pushing the *Finish* button.
 
@@ -70,6 +70,117 @@ This will import the cnf project into your Eclipse workspace.
 The *Bndtools* perspective gives access to specific *Bnd* tools. For this perspective, from the main menu, select 
 
 *Window/Perspective/OpenPerspective/Bndtools*
+
+##Creating an Application
+
+From main menu select *File/New/Bndtools Projects*. Select the *OSGI enRoute* template and give the name *tech.ghp.upper.application*.
+
+
+###Code
+
+The OSGI enRoute template drafts the source code for the application in the file */src/UpperApplication.java*.
+
+	 package tech.ghp.upper.application;
+	 
+	 import org.osgi.service.component.annotations.Component;
+	 
+	 import osgi.enroute.configurer.api.RequireConfigurerExtender;
+	 import osgi.enroute.google.angular.capabilities.RequireAngularWebResource;
+	 import osgi.enroute.rest.api.REST;
+	 import osgi.enroute.twitter.bootstrap.capabilities.RequireBootstrapWebResource;
+	 import osgi.enroute.webserver.capabilities.RequireWebServerExtender;
+	 
+
+	 @RequireAngularWebResource(resource={"angular.js","angular-resource.js", "angular-route.js"}, priority=1000)
+	 @RequireBootstrapWebResource(resource="css/bootstrap.css")
+	 @RequireWebServerExtender
+	 @RequireConfigurerExtender
+	 @Component(name="tech.ghp.upper")
+	 public class UpperApplication implements REST {
+
+			public String getUpper(RESTRequest req, String string) throws Exception{
+			return string.toUpperCase();
+			}
+
+It includes web resources for our application like Angular, Bootstrap, and the web extender that serves the static pages. 
+The component annotation that makes this object a *Declarative Services service component*. A service component is automatically registered as a service when it implements an interface and it can depend on other services.
+
+The *UpperApplication* component implements the *REST* interface and is thus registered as a *REST service*. The contract of this service indicates that any public method in this class becomes available as a *REST end-point*. 
+
+The *getUpper* method is for the *GET* method and it is mapped from the /rest/upper URI. Since it accepts a single argument, we can specify the word we want to upper case as /rest/upper/<word>. More information about the *REST API* can be found in the [service catalog](http://enroute.osgi.org/services/osgi.enroute.rest.api.html).
+
+
+###HTML resources
+
+Some static resources for the *Javascript code* and *CSS* are also needed for the web application. 
+
+
+The resources from this application are stored in the directory *static* (included in the bundle). These resources are directly mapped to the root, i.e. a resource with the path *static/abc/def* will be available as */abc/def*. 
+
+The recommendation is to create a static direction with the application PID name in static.
+
+	 static/
+	 			tech.ghp.upper
+				index.html
+				...
+
+
+The *static/tech.ghp.upper/index.html* directroy contains the single page HTML root. It defines a header, view area, and a footer. 
+
+The *tech.ghp.upper/main/htm* directory contains html fragments that are inserted in the main page depending on the URI. 
+
+These resources use macros from the build environment.
+
+###Automatic Resources
+
+The file *index.html* file contains the following entries:
+
+	 <link 
+	 		rel="stylesheet" 
+	 		type="text/css"
+			href="/osgi.enroute.webresource/${bsn}/${Bundle-Version}/*.css">
+
+	 <script 
+			src="/osgi.enroute.webresource/${bsn}/${Bundle-Version}/*.js">
+	 </script>
+
+OSGi enRoute automatically insert any CSS or Javascript code required (through annotation) for the bundle. Additionally, at the end it will add code in bundle’s web directory.
+
+###Defining a Runtime
+
+The requirements of the *runtime* need to be defined in the *tech.ghp.upper.bndrun* file. These can be defined from the *Run* tab. By default, the requirements are specified via annotations, the application *tech.ghp.upper.application* is listed in the initial requirements. Other bundles can be added from the *Browse Repos* list (the left side of the *Run* tab). 
+
+As the *Run Requirements* list is complete, the *Resolve* button needs to be pushed in order to get the bundles required by the runtime. This will set the *Run Bundles* list. The *-runbundles* section of the script is overwritten every time the *Resolve* button is pushed (manual editing of the *-runbundles* section would be lost).
+
+Save the file *tech.ghp.upper.bndrun*. 
+
+Push the button *Debug OSGi* at the right top of the window.
+
+The application is running at the address 
+
+    http://localhost:8080/tech.ghp.upper
+    
+By pushing the button *To Upper* will transform the string inserted in the dialog window to upper case.
+
+###Debugging
+
+Debugging can be done by setting *breakpoints* and *single step*. A new bundle is generated and gets deployed with every change of the bundle. If changes are made to the code (and saved), a new bundle is generated and gets deployed. If more requirements are defined (or removed) in the *bndrun* file, the respective bundels get deployed (or stopped). 
+
+For example if a change is made to the code to return *lower case* string instead of *upper case*
+
+	 public String getUpper(RESTRequest req, String string) throws Exception {
+			return string.toLowerCase();
+	}
+
+the running framework will include this change.
+
+N.B.
+A warning from Eclipse informs about the changes. The *Continue* button should be pushed.
+
+If there are Javascript or html fragment changes, the page in the browser needs to be refreshed to reload the changes.
+
+
+
 
 ##OSGi enRoute project templates
 
