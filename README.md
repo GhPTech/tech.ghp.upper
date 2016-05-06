@@ -316,7 +316,7 @@ The *bnd* project is driven by the *bnd.bnd* file, which defines the *version*, 
 	    osgi.enroute.junit.wrapper;version=4.12
 
 
-###Provider Project
+####Provider Project
 
 As the API (the service contract) is defined, a provider (an implementation) of the proposed service is required. The *provider* implements the *API* so the users (the clients) can employ the *service*. The *provider projects* have the *.provider* suffix. The root name should be the same as the workspace name. 
 
@@ -330,14 +330,14 @@ select the *OSGi enRoute* template and give the following name:
 
 The *OSGi enRoute* template creates the *UpperImpl.java* file, which includes the *@Component* annotation in order to setup the *Declarative Service (DS)* and the *UpperImpl* class.
 
-####Implementation
+#####Implementation
 
 As the *UpperImpl* component class implements the *Upper* interface, this implementation needs to be registed as an *Upper* service. This registration is specified as follows:
 
     @Component(name = "tech.ghp.upper")
     public class UpperImpl implements Upper { }
 
-####Build Path
+#####Build Path
 
 As the *Upper* interface is not a part of the *provider project*, the compilation and the build of the code cannot be carried out. A *build path* to the *api project* has to be provided to the *bnd.bnd* file.
 
@@ -347,7 +347,7 @@ The *buildpath* can be edited with the *Build* tab of the *bnd.bnd* file by addi
 	    osgi.enroute.base.api;version=1.0,\
 	    tech.ghp.engineering.api;version=latest
 
-####Imports
+#####Imports
 
 The *bnd.bnd* files defines the dependencies of the bundle. It consists of 
 
@@ -367,7 +367,7 @@ To avoid this double dependency, the *API* bundle can be exported to the *provid
 
 ![com.acme.prime.eval.api/com.acme.prime.eval.provider](http://enroute.osgi.org/img/tutorial_base/provider-imports-3.png "The box with rounded corners represents a bundle; the inside black box represents an exported package. By exporting the *com.acme.prime.eval.api*, the bundle *com.acme.prime.eval.provider* is independent.")
 
-####Code
+#####Code
 
 The *Upper* interface specifies the *upper* method as follows
 
@@ -390,25 +390,27 @@ The *provider* can both implement and/or be a *client* of the interfaces in a *s
 
 The best practice in OSGi for a *provider* is to include *service* (API) codes and export it. However, the *provider* code and the *api* codes should not be part of the same project because the compilation of the *api* would expose the *provider* (implementation) code.
 
-###Testing the Provider with (Standard) JUnit
+#####Testing the Provider with (Standard) JUnit
 
 The implementation (the provider) of the service should be tested before it is released. Testing saves time and resources in the later phases of the development process.  
 
-####JUnit
+A *provider* should have *JUnit* tests. These tests have access to private information about the implementation details and proprieties of the components that are not part of the public API. When these tests fail they prohibit the release of the project. 
 
-A *provider* should always have *unit* (white box) tests. These tests have access to private information about the implementation details and proprieties of the components that are not part of the public API. When these tests fail they prohibit the release of the project. 
-
-The *OSGi enRoute template* includes a test case in the *test* directory. The *EngineeringImplTest* test is placed in the same package as the *EngineeringImpl* class, but is not part of the bundle. As it is in the same package, it has access at the private information of the *EngineeringImpl* class. 
+The *OSGi enRoute template* includes a test case in the *test* directory. The *UpperImplTest* test is placed in the same package as the *UpperImpl* class, but is not part of the bundle. As it is in the same package, it has access at the private information of the *UpperImpl* class. 
 
 For the present template a simple test will be run as follows:
 
-    package tech.ghp.engineering.provider;
+    package tech.ghp.upper.provider;
     import junit.framework.TestCase;
 
     public class EvalImplTest extends TestCase {
+    
     		public void testSimple() throws Exception {
-					EngineeringImpl t = new EngineeringImpl();
-					assertEquals( 3.0,  t.eval("1 + 2"));
+					UpperImpl text = new UpperImpl();
+					
+					String str1 = new String("POPOVICI");
+					String str2 = new String(text.upper("Popovici"));
+					assertEquals(str1,str2);
 			}
 	}
 
@@ -425,6 +427,25 @@ The *JUnit* runner creates a new *VM* with the same *build-path* as the class it
 * *JUnit 4.x* requires annotations on the test class. Extensions of *TestCase* in the class are not necessary (annotations are ignored).
 * *JUnit 3.x* must extend *TestCase* (usually the easiest way to write tests)
 
+
+####Updating the Application project
+
+As initially drafted, the *application* bundle had no dependencies on the *Upper* service defined by the *api* bundle (and implemented by the *provider* bundle).
+
+In order to refer to the defined service, the *application* bundle should include the *api* bundle to the build path. 
+
+Convention is to place references at the end of the *application* class. Reference to the *Upper* service can be made as follows:
+
+    @Reference
+    Upper 		upper;
+
+The *@Reference* annotation creates a dependency on this service. The *UpperApplication* component is not initiated until the service registry contains an *Upper* service.
+
+Now the initial instruction to return a string to upper case,
+
+    return string.toUpperCase();
+    
+is replaced by the instruction to return *upper* string as declared in *Upper* class implemented in *UpperImpl* class.
 
 ##Running the Code
 
@@ -574,7 +595,7 @@ The *XRay* plugin returns a page with *Javascript* that pulls the server at give
 
 Each service type is represented by a rounded corner yellow box, with 
 
-##Tesing in OSGi
+####Tesing in OSGi
 
 In order to test the *service contracts*, *OSGi JUnit tests* are run. A sperate project is needed for testing. The contentent of these tests should be available to other projects. 
 

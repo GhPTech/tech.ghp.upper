@@ -6,7 +6,7 @@ package tech.ghp.upper.api;
 public interface Upper {
 	
 	/**
-	 * Converts a string and return the uppercase string
+	 * Converts a string and return the upper case string
 	 */
 	String upper(String input);
 	
