@@ -369,32 +369,20 @@ To avoid this double dependency, the *API* bundle can be exported to the *provid
 
 ####Code
 
-The *Engineering* interface specifies the *eng* method as follows
+The *Upper* interface specifies the *upper* method as follows
 
-    public interface Engineering {
-	     double eng(String expression) throws Exception;
+    public interface Upper {
+	     String upper(String input);
     }
 
-This method needs to be provided by the *EngineeringImpl* class. 
+This method needs to be provided by the *UpperImpl* class.
 
-To begin with, evaluation of trivial additions and subtractions of constants are provided as follows:
+For this trivial example, the provider only has to return the input and convert it to uppercase with the function *toUpperCase* (already available in the Java library of the method *input*):
 
-    @Component(name = "tech.ghp.engineering")
-    public class EngineeringImpl implements Engineering {
-	        Pattern EXPR = Pattern.compile("\\s*(?<left>\\d+)\\s*(?<op>\\+|-)\\s*(?<right>\\d+)\\s*");
-	        @Override
-			public double eval(String expression) throws Exception {
-				Matcher m = EXPR.matcher(expression);
-				if ( !m.matches())
-					throw new IllegalArgumentException("Invalid expression " + expression);
-		
-				double left = Double.valueOf( m.group("left"));
-				double right = Double.valueOf( m.group("right"));
-				switch( m.group("op")) {
-					case "+": return left + right;
-					case "-": return left - right;
-				}
-				return Double.NaN;
+    @Component(name = "tech.ghp.upper")
+    public class UpperImpl implements Upper {
+    	public String upper(String input){
+				return input.toUpperCase();
 			}
 	}
 
