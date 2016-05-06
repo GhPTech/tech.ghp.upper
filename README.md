@@ -326,21 +326,20 @@ To create a *provider* project, from the main menu select
 
 select the *OSGi enRoute* template and give the following name:
 
-*tech.ghp.engineering.provider*
+*tech.ghp.upper.provider*
 
-The *OSGi enRoute* template creates the *EngineeringImpl.java* file, which includes the *@Component* annotation in order to setup the *Declarative Service (DS)* and the *EngineeringImpl* class.
-
+The *OSGi enRoute* template creates the *UpperImpl.java* file, which includes the *@Component* annotation in order to setup the *Declarative Service (DS)* and the *UpperImpl* class.
 
 ####Implementation
 
-As the *EngineeringImpl* component class implements the *Engineering* interface, this implementation needs to be register as an *Engineering* service. This registration is specified as follows:
+As the *UpperImpl* component class implements the *Upper* interface, this implementation needs to be registed as an *Upper* service. This registration is specified as follows:
 
-    @Component(name = "tech.ghp.engineering")
-    public class EngineeringImpl implements Engineering { }
+    @Component(name = "tech.ghp.upper")
+    public class UpperImpl implements Upper { }
 
 ####Build Path
 
-As the *Eval* interface is not a part of the *provider project*, the compilation and the build of the code cannot be carried out. A *build path* to the *api project* has to be provided to the *bnd.bnd* file.
+As the *Upper* interface is not a part of the *provider project*, the compilation and the build of the code cannot be carried out. A *build path* to the *api project* has to be provided to the *bnd.bnd* file.
 
 The *buildpath* can be edited with the *Build* tab of the *bnd.bnd* file by adding the  *tech.ghp.engineering.api* bundle. Alternatively, the *buildpath* can be edited with the *Source* tab as 
 
@@ -356,15 +355,15 @@ The *bnd.bnd* files defines the dependencies of the bundle. It consists of
 * *Exported packages*: packages exported to other bundles;
 * *Imported packages*: packages provided to the current bundle;
 
-In order to recognise the *Engineering* type, the class *EngineeringImpl* has to import the package *tech.ghp.engineering.api* to get the *Engineering* interface.
+In order to recognise the *Upper* type, the class *UpperImpl* has to import the package *tech.ghp.upper.api* to get the *Upper* interface.
 
-    import tech.ghp.engineering.api.Engineering;
+    import tech.ghp.upper.api.Upper;
 
-In this case, the user of the *Engineering* service would depend on two bundles: *tech.ghp.engineering.api* and *tech.ghp.engineering.provider*. 
+In this case, the user of the *Upper* service would depend on two bundles: *tech.ghp.upper.api* and *tech.ghp.upper.provider*. 
 
-![com.acme.prime.eval.api/com.acme.prime.eval.provider](http://enroute.osgi.org/img/tutorial_base/provider-imports-1.png "The box with rounded corners represents a bundle; the inside black box represents an exported package. The bundle is importing the *com.acme.prime.eval.api* package to get the *Eval* interface.")
+![tech.ghp.upper.api/tech.ghp.upper.provider](http://enroute.osgi.org/img/tutorial_base/provider-imports-1.png "The box with rounded corners represents a bundle; the inside black box represents an exported package. The bundle is importing the *tech.ghp.upper.api* package to get the *Upper* interface.")
 
-To avoid this double dependency, the *API* bundle can be exported to the *provider* bundle. In order to export the *API* bundle, add the package *tech.ghp.engineering.api* to the *Export Packages*. 
+To avoid this double dependency, the *API* bundle can be exported to the *provider* bundle. In order to export the *API* bundle, add the package *tech.ghp.upper.api* to the *Export Packages*. 
 
 ![com.acme.prime.eval.api/com.acme.prime.eval.provider](http://enroute.osgi.org/img/tutorial_base/provider-imports-3.png "The box with rounded corners represents a bundle; the inside black box represents an exported package. By exporting the *com.acme.prime.eval.api*, the bundle *com.acme.prime.eval.provider* is independent.")
 
