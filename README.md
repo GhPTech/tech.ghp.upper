@@ -179,7 +179,56 @@ A warning from Eclipse informs about the changes. The *Continue* button should b
 
 If there are Javascript or html fragment changes, the page in the browser needs to be refreshed to reload the changes.
 
+Every application project has a *[project_name].bndrun* file and a *debug.bndrun* file.
 
+####Debugging tools
+
+The *debug.bndrun* file inherits from the *[project_name].bndrun* file and it includes additional bundles supporting the debugging (Web Console, XRay, a web server, etc). 
+
+As *debug.bndrun* inherits from *[project_name].bndrun*, it has no specified requirements in *Run Requirements*. However, the listed bundels to be added to the debug mode runtime  (*Run Bundles*) should be obtained by pushing *Resolve* button. This will add bundels like Web Console, XRay, etc.
+
+Once the *debug.bndrun* file is saved, the application can be run in debug mode by pushing the button *Debug OSGi*. This run in trace mode, which provides detailed information about the launch process and the ongoing updates of the bndtools.
+
+The *Web Console* can be accessed at the address:
+
+    http://localhost:8080/system/console
+
+The *ID* and the *password* are defined by Apache Felix as
+
+    User id: admin
+    Password: admin
+    
+These debugging tools provide valuable insights about the running application.
+
+
+###Creating and Executable
+
+In order to run the application on an arbitrary environment, an executable JAR can be 
+created. The JAR include all the dependencies of the launcher and the framework. 
+
+The executable JAR is created by selecting the *project_name.bndrun* file with the *Run* tab and by pushing the *Export* button form the right top side of the window. This will initiate an *Export Wizard Selection* in which, the name and the path of the executable JAR file are chosen. 
+
+The created executable JAR can be run from the command line at the chosen location:
+
+    cd ~/[chosen_path]
+
+The Java version at the target environment should be verified (Java version 1.8.0 is required):
+
+    java -version
+ 
+Make sure that no other framework is running on the target environment.
+
+The executable JAR can be run with the command:
+
+    java -jar tech.ghp.upper.jar
+    
+The application can be used/accessed from the address:
+
+    http://localhost:8080/tech.ghp.upper
+
+To stop the application do *Control-C* at the command line.
+
+    ^C
 
 
 ##OSGi enRoute project templates
