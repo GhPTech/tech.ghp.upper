@@ -183,11 +183,11 @@ Every application project has a *[project_name].bndrun* file and a *debug.bndrun
 
 ####Debugging tools
 
-The *debug.bndrun* file inherits from the *[project_name].bndrun* file and it includes additional bundles supporting the debugging (Web Console, XRay, a web server, etc). 
+The principle 'Don't Repeat Yourself (DRY)' is applied. The *debug.bndrun* file inherits from the *[project_name].bndrun* file (information already available in the later file is aslo available in the former file) and it includes additional bundles supporting the debugging process. 
 
 As *debug.bndrun* inherits from *[project_name].bndrun*, it has no specified requirements in *Run Requirements*. However, the listed bundels to be added to the debug mode runtime  (*Run Bundles*) should be obtained by pushing *Resolve* button. This will add bundels like Web Console, XRay, etc.
 
-Once the *debug.bndrun* file is saved, the application can be run in debug mode by pushing the button *Debug OSGi*. This run in trace mode, which provides detailed information about the launch process and the ongoing updates of the bndtools.
+Once the *debug.bndrun* file is saved, the application can be run in debug mode by pushing the button *Debug OSGi*. This run in trace mode, which provides detailed information about the launch process and the ongoing updates. This is triggered by the *-runtrace* flag. This can be set to *false* or removed, if this information is not required.
 
 The *Web Console* can be accessed at the address:
 
@@ -198,8 +198,9 @@ The *ID* and the *password* are defined by Apache Felix as
     User id: admin
     Password: admin
     
-These debugging tools provide valuable insights about the running application.
+These debugging tools provide valuable insights about the running application. For example, the running system can be inspected on a browser at the address:
 
+	 http://localhost:8080/system/console/xray
 
 ###Creating and Executable
 
@@ -530,148 +531,50 @@ When a OSGI JUnit test is launched, bnd creates a new framework with the set run
 Once all bundles are started, the *aQute.junit* bundle searches for the header *Test-Cases*, loads the classes and run the specified tests.
 
 If the tests are run from *Eclipse JUnit* framework, the *bnd* sets up a new framework and passes a set of classes/methods that Eclipse has chosen from a given selection. The *aQute.junit* will then execute only those classes/methods and report the results back to Eclipse for the JUnit view.
-
-
-
-
-##Deploying an Application
-
-The provider bundle can be used as a *deployable* application. 
-
-From the main menu select *New/Bndtools OSGi Project*, the *OSGi enRoute* template and name the project 'tech.ghp.engineering.application'. 
-
-An '.application' project should contain limited amounts of code concerning the requirement that drives the final application.
-
-By default, an application only contains a *Gogo shell command* (in this example *EngineeringApplication* class). In the *EngineeringImpl* class, the existing API call *eng*, was made available as a *Gogo shell command*. In the present *application* project, the service and the call to the method of the service need to be obtained.
-
-Getting a service is facilitated by *DS*; the *@Reference* annotation and a settler method and need to be added as follows:
-
-    @Component(
-			service=EngineeringApplication.class, 
-			property = { 
-					Debug.COMMAND_SCOPE + "=eng",
-					Debug.COMMAND_FUNCTION + "=eng" 
-			},
-			name="tech.ghp.engineering"
-	)
-	public class EngineeringApplication {
-			private Engineering eng;
-
-			public double eng(String m) throws Exception {
-			return eng.eng(m);
-			}
-			
-		@Reference
-		void setEngineering( Engineering eng) {
-				this.eng= eng;
-		}
-	}
-
-This class provides a dummy service that provides *eng:eng* command to Gogo shell (notice the difference with the command *test:eng* created in the provider project).
-
-As with the provider project, the dependency on the API project has to added on *buildpath* as
-
-    -buildpath: \
-		osgi.enroute.base.api,\
-		tech.ghp.engineering.api;version=latest 
-
-The *Eval* type from the API project should aslo be included as 
-
-    import tech.ghp.engineering.api.Engineering;
-
-###Defining the Application
-
-The runtime requirements are defined in a special file created in the application project: 
-
-*tech.ghp.engineering.bndrun* 
-
-This file contains information concerning the *Run Requirements*. By default the *Run Requirements* list containts the 'com.acme.prime.eval.application' bundle. For interaction with the 'Engineering' service, the bundle 'org.apache.felix.gogo.shell' bundle should be added from the *Repositories* list to the *Run Requirements* list and the *Resolve* button should be pushed to identify and assemble the *Run Bundles*. 
-
-To check if the application runs from the *Run* tab of the 'com.acme.prime.eval.bndrun' file push the *Debug OSGi* button. This will launch the framework and run the application.
-
-On the shell command try the following a simple (sum, subtraction, multiplication, division) evaluation:
-
-    g! eng:eng 7+7
-
-###Debugging
-
-A debugging friendly framework can also be used. The *application* project also contains the file 'debug.bndrun' file. This file includes the 'tech.ghp.engineering.bndrun' file and it adds debug requirements. 
-
-To try this *Degugging* mode of running the application, open the file 'debug.bndrun' file, resolve the dependencies by pushing the *Resolve* button, then push the *Debug OSGi* button from the upper right side of the Eclipse console.  This will launch the application and display on the shell supplementary information about the runtime. This is triggered by the *-runtrace* flag. This can be set to *false* or removed, if this information is not required.
-
-A set debugging tools such as *Web console*, *Gogo shell*, *XRay*, etc. are available. The running system can be inspected on a browser at the address:
-
-*http://localhost:8080/system/console/xray*
-
-The principle 'Don't Repeat Yourself (DRY)' is applied. The file 'debug.bndrun' inherits from file 'tech.ghp.engineering.bndrun', i.e. information already available in the later file is aslo available in the former file.
-
-###Executable
-
-In order to deploy the application on an other environment, an executalbe JAR is generated.
-
-From the *Run* tab of the 'tech.ghp.engineering.bndrun' file push the *Export* button and specify the path of the executable JAR.
-
-Copy the JAR into the target environment, open a terminal and check the Java version with the command
-
-    java -version
-    
-move to the location where the executable JAR was copied
-
-    cd ~/[patch to the location of the executable JAR]
-   
-
-and launch the application with the command
-
-    java -jar tech.ghp.engineering.jar
-
-From the command line of the Apache Felix Gogo shell the 'Eval' service can be used with the commands
-
-    eng:eng 8*6
-       
     
 ##Continous Integration
 
-The current application 'tech.ghp.engineering' is build by Eclipse IDE. This is useful for local usage and development, however the philosophy of *open source* and *collaborative development* should be considered. Moreover, when application building is carried out on the personal system, many dependencies accumulate. These dependencies are not suitable for *collaborative development* and *open source*. Automatic building from the command line should also be carried out.
+The current application *tech.ghp.upper* is build by Eclipse IDE. This is useful for local usage and development, however the philosophy of *open source* and *collaborative development* should be considered. Moreover, when application building is carried out on the personal system, many dependencies accumulate. These dependencies are not suitable for *collaborative development* and *open source*. Automatic building from the command line should also be carried out.
 
 ###Automatic building
 
 *OSGi enRoute* includes a full *Gradle* build. The *gradlew* script downloads the appropriate *gradle* version (Java version 1.8 should be available):
 
-    $ cd /Users/aqute/git/tech.ghp.engineering
+    $ cd /Users/aqute/git/tech.ghp.upper
     $ java -version
     java version "1.8.0"
     Java(TM) SE Runtime Environment ...
     $ ./gradlew
     Downloading https://b../biz.aQute.bnd-latest.jar to 
-    /Users/aqute/git/com.acme.prime/cnf/cache/biz.aQute.bnd-latest.jar ... 
+    /Users/aqute/git/tech.ghp.upper/cnf/cache/biz.aQute.bnd-latest.jar ... 
     :help
 
 The possible *gradle tasks* can be obtained with the command
     
     $./gradlew tasks
 
-To automatically builds the application 'com.acme.prime.eval' from the command line, the following command is used:
+To automatically builds the application *tech.ghp.upper* from the command line, the following command is used:
 
-    $./gradlew export.tech.ghp.engineering
+    $./gradlew export.tech.ghp.upper
     
-This will create and store the JAR 'tech.ghp.engineering.jar' on the path 
-*tech.ghp.engineering.api/generated/distributions/executable/*
+This will create and store the JAR 'tech.ghp.upper.jar' on the path 
+*tech.ghp.upper.api/generated/distributions/executable/*
 
 ###Sharing
 
 In order share the development, the project can be pushed to the *GitHub*. 
 
-On the GitHub home page [GitHub](https://github.com/GhPTech), a new repository has to be created. Name this repository 'com.acme.prime', add a short description 'An example workspace fro the osgi.enroute base tutorial' and set the repository as 'Public' (do not set initialise the 'README' file, do no add 'gitnore' and license).
+On the GitHub home page [GitHub](https://github.com/GhPTech), a new repository has to be created. Name this repository *tech.ghp.upper*, add a short description 'An example workspace fro the osgi.enroute base tutorial' and set the repository as 'Public' (do not set initialise the 'README' file, do no add 'gitnore' and license).
 
 [!GitHub Repository](http://enroute.osgi.org/img/tutorial_base/ci-github-1.png "Create a New Repository dialog")
 
 
-In order to connect to the local repository *!/git/com.acme.prime.eval*, the 'SSH URI' *git@github.com:GhPTech/com.acme.prime.git* needs to be copied, then on the command line the following commands should be launched:
+In order to connect to the local repository *!/git/tech.ghp.upper*, the 'SSH URI' *git@github.com:GhPTech/tech.ghp.upper.git* needs to be copied, then on the command line the following commands should be launched:
 
-    $ cd ~/git/tech.ghp.engineering
+    $ cd ~/git/tech.ghp.upper
 	$ git add .
 	$ git commit -m "first commit"
-	$ git remote add origin git@github.com:GhPTech/tech.ghp.engineering.git
+	$ git remote add origin git@github.com:GhPTech/tech.ghp.upper.git
 	$ git push -u origin master
 
 For further commits and pushes the following commands are used:
@@ -688,14 +591,14 @@ From the *Travis CI* website [!https://travis-ci.org](https://travis-ci.org "Tra
 
 Once logged in, select the *Repositories* tab. The *Sync Now* button should be pushed in order to update the latests changes from *GitHub*. Find the 'com.acme.prime' repository and push the *ON* button. Every push will now be automatically build the repository 'com.acme.prime' on the *Travis IC* server. 
 
-In order to trigger the build on *Travis IC* server, a change in the 'com.acme.prime' repository is made. The warning from the 'bnd.bnd' file of the provider project is commented as follows:
+In order to trigger the build on *Travis IC* server, a change in the *tech.ghp.upper* repository is made. The warning from the *bnd.bnd* file of the provider project is commented as follows:
 
     Bundle-Version:					1.0.0.${tstamp}
     Bundle-Description: 				\
 			A bundle with a provider. Notice that this provider exports the API package. \
 			It also provides a JUnit test and it can be run standalone. \
 			\
-			#${warning;Please update this Bundle-Description in tech.ghp.engineering.provider/bnd.bnd}
+			#${warning;Please update this Bundle-Description in tech.ghp.upper.provider/bnd.bnd}
 
 The change is *saved* and *pushed* to the *GitHub* server. The *Travis IC* notices the difference and launches a new automatic build of the repository.
 
