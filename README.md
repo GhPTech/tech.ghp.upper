@@ -451,20 +451,20 @@ Finally, the reference to  *tech.ghp.upper.api* should be provided to the *appli
 
 Check if the bundle *tech.ghp.upper.provider* was added to the list of *Run Bundles*. 
 
-####Tesing in OSGi
+####Testing in OSGi
 
 In order to test the *service contracts*, *OSGi JUnit tests* are run. A sperate project is needed for testing. The contentent of these tests should be available to other projects. 
 
-Select *New/Bndtools Project/*, choose *OSGi enRoute* template and name it 'com.acme.prime.eval.test'. 
+Select *New/Bndtools Project/*, choose *OSGi enRoute* template and name it *tech.ghp.upper.test*. 
 
-The *OSGi enRoute* template provides a simple test case with *Bundle Context*, but does not include the *Eval* service.
+The *OSGi enRoute* template provides a simple test case with *Bundle Context*, but does not include the *Upper* service.
 
-    package tech.ghp.engineering.test;
+    package tech.ghp.upper.test;
     import org.junit.Assert;
     import org.junit.Test;
     import org.osgi.framework.BundleContext;
     import org.osgi.framework.FrameworkUtil;
-    public class EngineeringTest {
+    public class UpperTest {
 
     private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
     
@@ -474,7 +474,7 @@ The *OSGi enRoute* template provides a simple test case with *Bundle Context*, b
     	}
     }
 
-In order to include the *Engineering* service the following code is needed:
+In order to include the *Upper* service the following code is needed:
 
     <T> T getService(Class<T> clazz) throws InterruptedException {
 		ServiceTracker<T,T> st = new ServiceTracker<>(context, clazz, null);
@@ -484,19 +484,19 @@ In order to include the *Engineering* service the following code is needed:
 
 Assertion of service existence is also needed:
 
-    Assert.assertNotNull(getService(Engineering.class));
+    Assert.assertNotNull(getService(Upper.class));
 
-As the *Eval* class is recognised by the current project, the 'com.prime.acme.eval.api' project needs to be included on the *BuildPath* of the 'bnd.bnd' file ('eval.prime.acme.eval.test' project). 
-Also *import* of the 'Eval' and the 'ServiceTracker' classes need to be done into the source code 'EvalTest' file.
+As the *Upper* class is recognised by the current project, the *tech.ghp.upper.api* project needs to be included on the *BuildPath* of the *bnd.bnd* file (*tech.ghp.upper.test* project). 
+Also *import* of the *Upper* and the *ServiceTracker* classes need to be done into the source code *UpperTest* file.
 
     import org.osgi.util.tracker.ServiceTracker;
-    import tech.ghp.engineering.api.Engineering;
+    import tech.ghp.upper.api.Upper;
 
-Finally, the dependencies need to be *resolved* from the *Run* tab of the 'bnd.bnd' file. As a result the following bundles will be added into the *Run Bundles* list:
+Finally, the dependencies need to be *resolved* from the *Run* tab of the *bnd.bnd* file. As a result the following bundles will be added into the *Run Bundles* list:
 
     -runbundles: \
-		tech.ghp.engineering.provider;version=snapshot,\
-		tech.ghp.engineering.test;version=snapshot,\
+		tech.ghp.upper.provider;version=snapshot,\
+		tech.ghp.upper.test;version=snapshot,\
 		org.apache.felix.configadmin;version='[1.8.6,1.8.7)',\
 		org.apache.felix.log;version='[1.0.1,1.0.2)',\
 		org.apache.felix.scr;version='[2.0.0,2.0.1)',\
@@ -505,32 +505,34 @@ Finally, the dependencies need to be *resolved* from the *Run* tab of the 'bnd.b
 		osgi.enroute.hamcrest.wrapper;version='[1.3.0,1.3.1)',\
 		osgi.enroute.junit.wrapper;version='[4.12.0,4.12.1)'
 
-To run the test select the 'bnd.bnd' file and from the *context menu* (right click) select 
+To run the test select the *bnd.bnd* file and from the *context menu* (right click) select 
 
 *@/Debug As/Bnd OSGi Test Launcher (JUnit)*
 
-As it is, the test only checks if the service exists. Other tests can be added as necessary. For example, to check if *2+2=4*, the following test is added:
+As it is, the test only checks if the service exists. Other tests can be added as necessary. For example, to check if the string *Popovici* is converted to upper case string *POPOVICI*, the following test is added:
 
     @Test
-    	public void sum() throws Exception {
-    		Assert.assertSame( 4, (int)getService(Eval.class).eval("2+2"));
-    	}
+    public void testText() throws Exception {
+    	Assert.assertEquals( new String("POPOVICI"), getService(Upper.class).upper("Popovici"));
 
-This test case can be run separately from *context menu* of *sum* function as *Debug As/Bnd OSGi Test Launcher (JUnit)*.
+This test case can be run separately from *context menu* of *testText* function as *Debug As/Bnd OSGi Test Launcher (JUnit)*.
 
-Test bundles are marked with the heander *Test-Cases*. This header contains a list with class names that contain *JUnit* tests. The *Source* tab of the 'bnd.bnd' file contains the header 
+Test bundles are marked with the heander *Test-Cases*. This header contains a list with class names that contain *JUnit* tests. The *Source* tab of the *bnd.bnd* file contains the header 
 
     Test-Cases: ${test-cases}
 
-The *${test-cases}* macro is set by OSGi enRoute template, which either extend the *junit.framework.TestCase* class or use the JUnit 4 annotations like *@Test*. In the present example, the expansion is as follows (generated/com.acme.prime.eval.test.jar):
+The *${test-cases}* macro is set by OSGi enRoute template, which either extend the *junit.framework.TestCase* class or use the JUnit 4 annotations like *@Test*. In the present example, the expansion is as follows (*generated/tech.ghp.upper.test.jar*):
 
-     Test-Cases: tech.ghp.engineering.test.EngineeringTest
+     Test-Cases: tech.ghp.upper.test.UpperTest
      
 When a OSGI JUnit test is launched, bnd creates a new framework with the set run bundles. On the class path (for the current framework), bundle *aQute.junit* is added as well as the JARs listed on the *-testpath*. The features available for running a *usual framework* are also available for running a *test framework*, e.g. *-runproprieties*, *-runtrace*.
 
 Once all bundles are started, the *aQute.junit* bundle searches for the header *Test-Cases*, loads the classes and run the specified tests.
 
 If the tests are run from *Eclipse JUnit* framework, the *bnd* sets up a new framework and passes a set of classes/methods that Eclipse has chosen from a given selection. The *aQute.junit* will then execute only those classes/methods and report the results back to Eclipse for the JUnit view.
+
+
+
 
 ##Deploying an Application
 

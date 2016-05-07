@@ -7,6 +7,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
 
 import tech.ghp.upper.api.Upper;
+//import tech.ghp.upper.provider.UpperImpl;
 
 /**
  * 
@@ -27,7 +28,7 @@ public class UpperTest {
     
     @Test
     public void testText() throws Exception {
-    	Assert.assertSame( new String("POPOVICI"), getService(Upper.class).upper("Popovici"));
+    	Assert.assertEquals( new String("POPOVICI"), getService(Upper.class).upper("Popovici"));
     }
     
     <T> T getService(Class<T> clazz) throws InterruptedException {
