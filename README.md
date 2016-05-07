@@ -34,7 +34,7 @@ The *GitHub workspace* is intended for sharing on [GitHub](https://github.com). 
 	 $ cd  ~/git
 	 $ git init tech.ghp.upper
 	 $ cd tech.ghp.upper
-	 $ git fetch --depth=1 https://github.com/osgi/workspace master
+	 $ git fetch --depth=1 https://github.com/GhPTech/workspace master
 	 $ git checkout FETCH_HEAD -- .
 
 ###The Eclipse workspace
