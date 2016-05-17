@@ -517,6 +517,7 @@ As it is, the test only checks if the service exists. Other tests can be added a
     @Test
     public void testText() throws Exception {
     	Assert.assertEquals( new String("POPOVICI"), getService(Upper.class).upper("Popovici"));
+    	}
 
 This test case can be run separately from *context menu* of *testText* function as *Debug As/Bnd OSGi Test Launcher (JUnit)*.
 
