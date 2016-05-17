@@ -444,7 +444,9 @@ The *@Reference* annotation creates a dependency on this service. The *UpperAppl
 
 Now the initial instruction to return a string to upper case,
 
-    return string.toUpperCase();
+    public String getUpper(String string) {
+    		return upper.upper(string);
+    		}
     
 is replaced by the instruction to return *upper* string as declared in *Upper* class implemented in *UpperImpl* class.
 
